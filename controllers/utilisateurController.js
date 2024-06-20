@@ -1,7 +1,10 @@
-const Utilisateurs = require('../models/Utilisateurs');
+const Utilisateurs = require('../models/Utilisateur');
 const bcrypt = require('bcryptjs');
-const { generateToken } = require('../utils/jwt');
+const crypto = require('crypto');
+const { generateToken, verifyToken } = require('../utils/jwt');
 const responses = require('../utils/responses');
+const { sendPasswordResetEmail } = require('../utils/nodemailer');
+require('dotenv').config();
 
 exports.creerUtilisateur = async (req, res) => {
   try {
@@ -95,4 +98,49 @@ exports.supprimerUtilisateur = async (req, res) => {
   } catch (error) {
     responses.serverError(res, error.message);
   }
+};
+
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const utilisateur = await Utilisateurs.findOne({ where: { email } });
+
+    if (!utilisateur) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+    const resetToken = generateToken({ id: utilisateur.id, token });
+
+    await sendPasswordResetEmail(email, resetToken);
+
+    res.status(200).json({ message: 'Email de réinitialisation envoyé' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const decoded = verifyToken(token);
+    const utilisateur = await Utilisateurs.findByPk(decoded.id);
+
+    if (!utilisateur) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    utilisateur.motDePasse = await bcrypt.hash(newPassword, 10);
+    await utilisateur.save();
+
+    res.status(200).json({ message: 'Mot de passe réinitialisé avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.logout = async (req, res) => {
+  res.status(200).json({ message: 'Déconnexion réussie' });
 };

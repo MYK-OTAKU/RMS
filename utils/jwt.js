@@ -1,8 +1,7 @@
-// project-root/utils/jwt.js
-// utils/jwt.js
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const secretKey = process.env.JWT_SECRET || 'your-secret-key';
+const secretKey = process.env.JWT_SECRET_KEY;
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -12,7 +11,7 @@ const generateToken = (user) => {
       role: user.role
     },
     secretKey,
-    { expiresIn: '1h' }
+    { expiresIn: '10000000000000000h' }
   );
 };
 

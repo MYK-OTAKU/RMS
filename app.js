@@ -1,27 +1,34 @@
+// app.js
 const express = require('express');
-const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const favicon = require('serve-favicon');
-const { initDb } = require('./database/sequelize');
+const { initDb, sequelize } = require('./database/sequelize');
 const utilisateurRoutes = require('./routes/UtilisateurRoutes');
 
-const port = 3200;
+
+const app = express();
+
 app
   .use(favicon(__dirname + '/favicon.ico'))
   .use(morgan('dev'))
   .use(bodyParser.json());
 
-// Initialiser la base de données et synchroniser les modèles
+app.use('/api', utilisateurRoutes);
+
 const syncDatabase = async () => {
   await initDb();
-  await require('./models/Utilisateurs').sync({ force: true }); // Attention: force: true recrée la table à chaque démarrage
+ 
+
+  await sequelize.sync({ force: true });
   console.log('Base de données synchronisée.');
 };
 
-// Appel des routes
-app.use('/api', utilisateurRoutes);
-
 syncDatabase().then(() => {
-  app.listen(port, () => console.log(`Notre app marche sur http://localhost:${port}`));
+  if (require.main === module) {
+    const port = process.env.PORT || 3200;
+    app.listen(port, () => console.log(`Notre app marche sur http://localhost:${port}`));
+  }
 });
+
+module.exports = app;

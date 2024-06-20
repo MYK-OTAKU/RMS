@@ -38,5 +38,6 @@
   },
   "workbench.sash.size": 8,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "liveServer.settings.AdvanceCustomBrowserCmdLine": ""
+  "liveServer.settings.AdvanceCustomBrowserCmdLine": "",
+  "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
