@@ -18,7 +18,7 @@ exports.creerUtilisateur = async (req, res) => {
       email,
       numeroTel,
       adresse
-    });
+    }); 
     responses.created(res, utilisateur);
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -27,7 +27,6 @@ exports.creerUtilisateur = async (req, res) => {
     responses.badRequest(res, error.message);
   }
 };
-
 exports.connexion = async (req, res) => {
   try {
     const { nomUtilisateur, motDePasse } = req.body;
@@ -44,11 +43,26 @@ exports.connexion = async (req, res) => {
     }
 
     const token = generateToken(utilisateur);
-    responses.success(res, { utilisateur, token }, 'Connexion réussie');
+    res.status(200).json({ success: true, token });
   } catch (error) {
     responses.serverError(res, error.message);
   }
 };
+
+exports.getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; // Assumez que l'ID de l'utilisateur est stocké dans req.user.id
+    const user = await User.findByPk(userId);
+    if (user) {
+      responses.success(res, user);
+    } else {
+      responses.notFound(res, 'Utilisateur non trouvé');
+    }
+  } catch (error) {
+    responses.serverError(res, error.message);
+  }
+};
+
 
 exports.listeUtilisateurs = async (req, res) => {
   try {

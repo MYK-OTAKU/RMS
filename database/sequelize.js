@@ -6,7 +6,7 @@ const sequelize = new Sequelize('rms', 'root', '', {
   dialectOptions: {
     timezone: 'Etc/GMT-2',
   },
-  logging: false
+  logging: false,
 });
 
 const initDb = async () => {
@@ -17,6 +17,5 @@ const initDb = async () => {
     console.error('Impossible de se connecter à la base de données :', error);
   }
 };
-
 
 module.exports = { sequelize, initDb };

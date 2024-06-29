@@ -11,9 +11,11 @@ router.post('/reset-password/:token', utilisateurController.resetPassword);
 
 // Routes avec authentification
 router.get('/utilisateurs', authenticate, utilisateurController.listeUtilisateurs);
+router.get('/utilisateurs', authenticate, utilisateurController.getUserProfile);
 router.get('/utilisateurs/:id', authenticate, utilisateurController.getUtilisateur);
 router.put('/utilisateurs/:id', authenticate, utilisateurController.mettreAJourUtilisateur);
 router.delete('/utilisateurs/:id', authenticate, utilisateurController.supprimerUtilisateur);
 router.post('/logout', authenticate, utilisateurController.logout);
+
 
 module.exports = router;

@@ -1,49 +1,49 @@
 module.exports = {
-  success: (res, data, message = 'Success') => {
+  success: (res, data, message = 'Succès') => {
     res.status(200).json({
-      status: 'success',
+      statut: 'succès',
       message,
-      data
+      données: data
     });
   },
 
-  created: (res, data, message = 'Resource created successfully') => {
+  created: (res, data, message = 'Ressource créée avec succès') => {
     res.status(201).json({
-      status: 'success',
+      statut: 'succès',
       message,
-      data
+      données: data
     });
   },
 
-  badRequest: (res, error, message = 'Bad Request') => {
+  badRequest: (res, error, message = 'Requête incorrecte') => {
     res.status(400).json({
-      status: 'error',
+      statut: 'erreur',
       message,
-      error
+      erreur: error
     });
   },
 
-  unauthorized: (res, error, message = 'Unauthorized') => {
+  unauthorized: (res, error, message = 'Non autorisé') => {
     res.status(401).json({
-      status: 'error',
+      statut: 'erreur',
       message,
-      error
+      erreur: error
     });
   },
 
-  notFound: (res, error, message = 'Resource not found') => {
+  notFound: (res, error, message = 'Ressource non trouvée') => {
     res.status(404).json({
-      status: 'error',
+      statut: 'erreur',
       message,
-      error
+      erreur: error
     });
   },
 
-  serverError: (res, error, message = 'Internal Server Error') => {
+  serverError: (res, error, message = 'Erreur interne du serveur') => {
     res.status(500).json({
-      status: 'error',
+      statut: 'erreur',
       message,
-      error
+      erreur: error
     });
   }
 };
