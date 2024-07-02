@@ -4,11 +4,7 @@ const responses = require('../utils/responses');
 exports.creerTable = async (req, res) => {
   try {
     const { nom, capacite, disponibilite } = req.body;
-    const table = await Table.create({
-      nom,
-      capacite,
-      disponibilite
-    });
+    const table = await Table.create({ nom, capacite, disponibilite });
     responses.created(res, table);
   } catch (error) {
     responses.badRequest(res, error.message);
@@ -18,13 +14,17 @@ exports.creerTable = async (req, res) => {
 exports.listeTables = async (req, res) => {
   try {
     const tables = await Table.findAll();
-    responses.success(res, tables);
+    // Assure-toi que la réponse est bien un tableau
+    if (Array.isArray(tables)) {
+      responses.success(res, tables);
+    } else {
+      responses.serverError(res, 'La réponse n\'est pas un tableau.');
+    }
   } catch (error) {
     responses.serverError(res, error.message);
   }
 };
-
-exports.getTable = async (req, res) => {
+exports.getTableParId = async (req, res) => {
   try {
     const table = await Table.findByPk(req.params.id);
     if (table) {

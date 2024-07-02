@@ -8,7 +8,7 @@ require('dotenv').config();
 
 exports.creerUtilisateur = async (req, res) => {
   try {
-    const { nom, prenom, role, nomUtilisateur, motDePasse, email, numeroTel, adresse } = req.body;
+    const { nom, prenom, role, nomUtilisateur, motDePasse, email, numeroTel, adresse, recette } = req.body;
     const utilisateur = await Utilisateurs.create({
       nom,
       prenom,
@@ -17,9 +17,10 @@ exports.creerUtilisateur = async (req, res) => {
       motDePasse,
       email,
       numeroTel,
-      adresse
+      adresse,
+      recette
     });
-    responses.created(res, utilisateur);
+    responses.created(res, utilisateur, 'Utilisateur créé avec succès');
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return responses.badRequest(res, 'Email ou nom d’utilisateur déjà utilisé');
@@ -44,7 +45,21 @@ exports.connexion = async (req, res) => {
     }
 
     const token = generateToken(utilisateur);
-    responses.success(res, { utilisateur, token }, 'Connexion réussie');
+    res.status(200).json({ success: true, token });
+  } catch (error) {
+    responses.serverError(res, error.message);
+  }
+};
+
+exports.getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const utilisateur = await Utilisateurs.findByPk(userId);
+    if (utilisateur) {
+      responses.success(res, utilisateur);
+    } else {
+      responses.notFound(res, 'Utilisateur non trouvé');
+    }
   } catch (error) {
     responses.serverError(res, error.message);
   }
