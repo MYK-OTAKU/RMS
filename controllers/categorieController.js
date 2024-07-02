@@ -1,4 +1,4 @@
-const Categorie = require('../models/categorie');
+const Categorie = require('../models/Categorie');
 const responses = require('../utils/responses');
 
 exports.creerCategorie = async (req, res) => {
@@ -23,7 +23,6 @@ exports.listeCategories = async (req, res) => {
     responses.serverError(res, error.message);
   }
 };
-
 exports.getCategorieParId = async (req, res) => {
   try {
     const categorie = await Categorie.findByPk(req.params.id);

@@ -11,7 +11,7 @@ const generateToken = (user) => {
       role: user.role
     },
     secretKey,
-    { expiresIn: '10000000000000000h' }
+    { expiresIn: '1h' }
   );
 };
 

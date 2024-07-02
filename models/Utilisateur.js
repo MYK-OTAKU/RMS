@@ -17,7 +17,7 @@ const Utilisateurs = sequelize.define('Utilisateurs', {
     allowNull: false
   },
   role: {
-    type: DataTypes.ENUM('admin', 'serveur', 'cuisinier', 'client'),
+    type: DataTypes.ENUM('admin', 'serveur', 'cuisinier', 'client', 'superadmin'),
     allowNull: false
   },
   nomUtilisateur: {
@@ -44,6 +44,10 @@ const Utilisateurs = sequelize.define('Utilisateurs', {
   adresse: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  recette: {
+    type: DataTypes.FLOAT,
+    allowNull: true // Seulement pour les serveurs
   },
   createdAt: {
     type: DataTypes.DATE,

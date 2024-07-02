@@ -1,5 +1,5 @@
-const Produit = require('../models/produit');
-const Categorie = require('../models/categorie');
+const Produit = require('../models/Produit');
+const Categorie = require('../models/Categorie');
 const responses = require('../utils/responses');
 
 exports.creerProduit = async (req, res) => {
@@ -16,9 +16,16 @@ exports.creerProduit = async (req, res) => {
   }
 };
 
+
+
 exports.listeProduits = async (req, res) => {
   try {
-    const produits = await Produit.findAll();
+    const produits = await Produit.findAll({
+      include: {
+        model: Categorie,
+        as: 'Categorie'
+      }
+    });
     if (Array.isArray(produits)) {
       responses.success(res, produits);
     } else {
@@ -27,7 +34,7 @@ exports.listeProduits = async (req, res) => {
   } catch (error) {
     responses.serverError(res, error.message);
   }
-};
+};  
 
 exports.getProduitParId = async (req, res) => {
   try {

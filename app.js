@@ -7,6 +7,7 @@ const utilisateurRoutes = require('./routes/UtilisateurRoutes');
 const tableRoutes = require('./routes/TableRoutes');
 const categorieRoutes = require('./routes/CategorieRoutes');
 const produitRoutes = require('./routes/ProduitRoutes');
+const commandeRoutes = require('./routes/CommandeRoutes');
 const cors = require('cors'); // Importez le module CORS
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api', utilisateurRoutes);
 app.use('/api', tableRoutes);
 app.use('/api', categorieRoutes);
 app.use('/api', produitRoutes);
+app.use('/api', commandeRoutes);
 
 const syncDatabase = async () => {
   await initDb();

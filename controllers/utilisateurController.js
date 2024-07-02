@@ -8,7 +8,7 @@ require('dotenv').config();
 
 exports.creerUtilisateur = async (req, res) => {
   try {
-    const { nom, prenom, role, nomUtilisateur, motDePasse, email, numeroTel, adresse } = req.body;
+    const { nom, prenom, role, nomUtilisateur, motDePasse, email, numeroTel, adresse, recette } = req.body;
     const utilisateur = await Utilisateurs.create({
       nom,
       prenom,
@@ -17,9 +17,10 @@ exports.creerUtilisateur = async (req, res) => {
       motDePasse,
       email,
       numeroTel,
-      adresse
-    }); 
-    responses.created(res, utilisateur);
+      adresse,
+      recette
+    });
+    responses.created(res, utilisateur, 'Utilisateur créé avec succès');
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return responses.badRequest(res, 'Email ou nom d’utilisateur déjà utilisé');
@@ -27,6 +28,7 @@ exports.creerUtilisateur = async (req, res) => {
     responses.badRequest(res, error.message);
   }
 };
+
 exports.connexion = async (req, res) => {
   try {
     const { nomUtilisateur, motDePasse } = req.body;
@@ -51,10 +53,10 @@ exports.connexion = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const userId = req.user.id; // Assumez que l'ID de l'utilisateur est stocké dans req.user.id
-    const user = await User.findByPk(userId);
-    if (user) {
-      responses.success(res, user);
+    const userId = req.user.id;
+    const utilisateur = await Utilisateurs.findByPk(userId);
+    if (utilisateur) {
+      responses.success(res, utilisateur);
     } else {
       responses.notFound(res, 'Utilisateur non trouvé');
     }
@@ -62,7 +64,6 @@ exports.getUserProfile = async (req, res) => {
     responses.serverError(res, error.message);
   }
 };
-
 
 exports.listeUtilisateurs = async (req, res) => {
   try {
