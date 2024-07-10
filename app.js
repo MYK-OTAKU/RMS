@@ -2,14 +2,14 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const favicon = require('serve-favicon');
-const { initDb, sequelize } = require('./database/sequelize');
+const { initDb, sequelize } = require('./config/sequelize');
 const utilisateurRoutes = require('./routes/UtilisateurRoutes');
 const tableRoutes = require('./routes/TableRoutes');
 const categorieRoutes = require('./routes/CategorieRoutes');
 const produitRoutes = require('./routes/ProduitRoutes');
 const commandeRoutes = require('./routes/CommandeRoutes');
 const cors = require('cors'); // Importez le module CORS
-
+const path = require('path');
 const app = express();
 
 // Configuration des options CORS
@@ -26,6 +26,10 @@ app
   .use(cors(corsOptions))
   .use(bodyParser.json());
 
+// Configurez Express pour servir les fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routes API
 app.use('/api', utilisateurRoutes);
 app.use('/api', tableRoutes);
 app.use('/api', categorieRoutes);
@@ -36,13 +40,14 @@ const syncDatabase = async () => {
   await initDb();
   try {
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
     console.log('Base de données synchronisée.');
   } catch (error) {
     console.error('Erreur lors de la synchronisation de la base de données :', error);
   }
 };
+
 
 syncDatabase().then(() => {
   if (require.main === module) {

@@ -13,12 +13,12 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const sendPasswordResetEmail = (email, token) => {
+const sendPasswordResetEmail = (email, resetLink) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: 'Réinitialisation de mot de passe',
-    text: `Vous avez demandé la réinitialisation de votre mot de passe. Veuillez utiliser le lien suivant pour réinitialiser votre mot de passe : http://localhost:3200/api/reset-password/${token}`
+    text: `Vous avez demandé la réinitialisation de votre mot de passe. Veuillez utiliser le lien suivant pour réinitialiser votre mot de passe : ${resetLink}`
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

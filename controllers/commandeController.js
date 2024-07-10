@@ -6,7 +6,7 @@ exports.creerCommande = async (req, res) => {
   try {
     const { aDate, aTime, TableName, WaiterName, status, orderType, total, received, change, driverID, CustName, CustPhone, details } = req.body;
     const commande = await Commande.create({ aDate, aTime, TableName, WaiterName, status, orderType, total, received, change, driverID, CustName, CustPhone });
-    
+
     if (details && details.length > 0) {
       for (const detail of details) {
         await DetailCommande.create({ CommandeId: commande.id, ...detail });

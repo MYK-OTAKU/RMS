@@ -1,14 +1,21 @@
 const Produit = require('../models/Produit');
 const Categorie = require('../models/Categorie');
 const responses = require('../utils/responses');
+const upload = require('../config/multer-config'); // Assurez-vous que le chemin est correct
+
+// Middleware pour gérer l'upload de l'image
+exports.uploadImage = upload.single('imagePrincipale');
 
 exports.creerProduit = async (req, res) => {
   try {
-    const { nom, description, prix, quantiteStock, disponible, imagePrincipale, creePar, misAJourPar, categorieId } = req.body;
+    const { nom, description, prix, quantiteStock, disponible, creePar, misAJourPar, categorieId } = req.body;
+    const imagePrincipale = req.file ? req.file.path : null;
+
     const categorie = await Categorie.findByPk(categorieId);
     if (!categorie) {
       return responses.notFound(res, 'Catégorie non trouvée');
     }
+
     const produit = await Produit.create({ nom, description, prix, quantiteStock, disponible, imagePrincipale, creePar, misAJourPar, categorieId });
     responses.created(res, produit, 'Produit créé avec succès');
   } catch (error) {
@@ -16,7 +23,22 @@ exports.creerProduit = async (req, res) => {
   }
 };
 
+exports.mettreAJourProduit = async (req, res) => {
+  try {
+    const produit = await Produit.findByPk(req.params.id);
+    if (produit) {
+      const { nom, description, prix, quantiteStock, disponible, creePar, misAJourPar, categorieId } = req.body;
+      const imagePrincipale = req.file ? req.file.path : produit.imagePrincipale;
 
+      await produit.update({ nom, description, prix, quantiteStock, disponible, imagePrincipale, creePar, misAJourPar, categorieId });
+      responses.success(res, produit, 'Produit mis à jour avec succès');
+    } else {
+      responses.notFound(res, 'Produit non trouvé');
+    }
+  } catch (error) {
+    responses.badRequest(res, error.message);
+  }
+};
 
 exports.listeProduits = async (req, res) => {
   try {
@@ -34,7 +56,7 @@ exports.listeProduits = async (req, res) => {
   } catch (error) {
     responses.serverError(res, error.message);
   }
-};  
+};
 
 exports.getProduitParId = async (req, res) => {
   try {
@@ -49,19 +71,7 @@ exports.getProduitParId = async (req, res) => {
   }
 };
 
-exports.mettreAJourProduit = async (req, res) => {
-  try {
-    const produit = await Produit.findByPk(req.params.id);
-    if (produit) {
-      await produit.update(req.body);
-      responses.success(res, produit, 'Produit mis à jour avec succès');
-    } else {
-      responses.notFound(res, 'Produit non trouvé');
-    }
-  } catch (error) {
-    responses.badRequest(res, error.message);
-  }
-};
+
 
 exports.supprimerProduit = async (req, res) => {
   try {

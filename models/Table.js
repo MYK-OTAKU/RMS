@@ -1,6 +1,6 @@
 // models/Table.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../database/sequelize').sequelize;
+const sequelize = require('../config/sequelize').sequelize;
 
 const Table = sequelize.define('Table', {
   id: {

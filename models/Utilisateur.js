@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../database/sequelize').sequelize;
+const sequelize = require('../config/sequelize').sequelize;
 const bcrypt = require('bcryptjs');
 
 const Utilisateurs = sequelize.define('Utilisateurs', {
@@ -49,6 +49,18 @@ const Utilisateurs = sequelize.define('Utilisateurs', {
     type: DataTypes.FLOAT,
     allowNull: true // Seulement pour les serveurs
   },
+  twoFactorEnabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  twoFactorSecret: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  qrScanned: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
@@ -65,7 +77,7 @@ Utilisateurs.beforeCreate(async (utilisateur, options) => {
 });
 
 Utilisateurs.beforeUpdate(async (utilisateur, options) => {
-  if (utilisateur.changed('motDePasse')) {
+  if (utilisateur.changed('motDePasse') && !utilisateur.motDePasse.startsWith('$2a$10$')) {
     const hashedPassword = await bcrypt.hash(utilisateur.motDePasse, 10);
     utilisateur.motDePasse = hashedPassword;
   }
