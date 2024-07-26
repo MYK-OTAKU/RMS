@@ -8,10 +8,10 @@ const generateToken = (user) => {
     {
       id: user.id,
       nomUtilisateur: user.nomUtilisateur,
-      role: user.role
+      role: user.role // Assurez-vous que le rôle est inclus ici
     },
     secretKey,
-    { expiresIn: '1h' }
+    { expiresIn: '10h' }
   );
 };
 

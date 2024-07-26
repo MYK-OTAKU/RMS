@@ -11,6 +11,12 @@ require('dotenv').config();
 exports.creerUtilisateur = async (req, res) => {
   try {
     const { nom, prenom, role, nomUtilisateur, motDePasse, email, numeroTel, adresse, recette } = req.body;
+    
+    // Vérifiez que tous les champs requis sont présents
+    if (!nom || !prenom || !role || !nomUtilisateur || !motDePasse || !email) {
+      return res.status(400).json({ message: 'Tous les champs requis doivent être remplis' });
+    }
+
     const utilisateur = await Utilisateurs.create({
       nom,
       prenom,
@@ -24,6 +30,7 @@ exports.creerUtilisateur = async (req, res) => {
     });
     responses.created(res, utilisateur, 'Utilisateur créé avec succès');
   } catch (error) {
+    console.error('Erreur lors de la création de l\'utilisateur:', error); // Ajoutez ce log pour capturer l'erreur
     if (error.name === 'SequelizeUniqueConstraintError') {
       return responses.badRequest(res, 'Email ou nom d’utilisateur déjà utilisé');
     }
@@ -39,7 +46,7 @@ exports.connexion = async (req, res) => {
     if (!utilisateur) {
       return res.status(404).json({ statut: 'erreur', message: 'Utilisateur non trouvé' });
     }
-    
+
     console.log('Mot de passe envoyé:', motDePasse); // Mot de passe en texte clair
     console.log('Mot de passe stocké (haché):', utilisateur.motDePasse); // Mot de passe haché stocké
 
@@ -50,8 +57,13 @@ exports.connexion = async (req, res) => {
     }
 
     if (utilisateur.twoFactorEnabled) {
+      const token = generateToken({
+        id: utilisateur.id,
+        role: utilisateur.role,
+        twoFactorRequired: true
+      });
+
       if (utilisateur.qrScanned) {
-        const token = generateToken({ id: utilisateur.id, twoFactorRequired: true });
         return res.status(200).json({ success: true, token, twoFactorRequired: true });
       } else {
         const secret = speakeasy.generateSecret({ length: 20 });
@@ -59,24 +71,27 @@ exports.connexion = async (req, res) => {
         await utilisateur.save();
 
         const otpauth_url = `otpauth://totp/${process.env.APP_NAME}:${utilisateur.email}?secret=${secret.base32}&issuer=${process.env.APP_NAME}`;
-
         QRCode.toDataURL(otpauth_url, (err, data_url) => {
           if (err) {
             return res.status(500).json({ message: 'Erreur lors de la génération du QR code' });
           }
 
-          const token = generateToken({ id: utilisateur.id, twoFactorRequired: true });
           res.status(200).json({ success: true, token, twoFactorRequired: true, qrCodeUrl: data_url });
         });
       }
     } else {
-      const token = generateToken({ id: utilisateur.id });
+      const token = generateToken({
+        id: utilisateur.id,
+        role: utilisateur.role
+      });
       res.status(200).json({ success: true, token, twoFactorRequired: false });
     }
   } catch (error) {
     res.status(500).json({ statut: 'erreur', message: error.message });
   }
 };
+
+
 
 exports.verifyTwoFactor = async (req, res) => {
   try {
@@ -106,7 +121,10 @@ exports.verifyTwoFactor = async (req, res) => {
     utilisateur.qrScanned = true; // Marquer le QR code comme scanné
     await utilisateur.save();
 
-    const jwtToken = generateToken({ id: utilisateur.id });
+    const jwtToken = generateToken({
+      id: utilisateur.id,
+      role: utilisateur.role // Inclure le rôle ici
+    });
     console.log('2FA vérifié avec succès, jeton JWT généré');
     res.status(200).json({ success: true, token: jwtToken });
   } catch (error) {
@@ -114,7 +132,6 @@ exports.verifyTwoFactor = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
